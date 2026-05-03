@@ -1,0 +1,421 @@
+ 
+
+
+
+
+
+
+
+local Players = game:GetService("Players")
+
+local TweenService = game:GetService("TweenService")
+
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+local playerGui = player:WaitForChild("PlayerGui")
+
+if playerGui:FindFirstChild("MainPanel") then
+
+	playerGui.MainPanel:Destroy()
+
+end
+
+local screenGui = Instance.new("ScreenGui")
+
+screenGui.Name = "MainPanel"
+
+screenGui.IgnoreGuiInset = true
+
+screenGui.ResetOnSpawn = false
+
+screenGui.Parent = playerGui
+
+
+
+local bg = Instance.new("Frame")
+
+bg.Size = UDim2.new(1, 0, 1, 0)
+
+bg.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+
+bg.BackgroundTransparency = 0.4
+
+bg.BorderSizePixel = 0
+
+bg.Parent = screenGui
+
+local blurEffect = Instance.new("BlurEffect")
+
+blurEffect.Size = 20
+
+blurEffect.Parent = game:GetService("Lighting") 
+
+
+
+screenGui.AncestryChanged:Connect(function()
+
+    if not screenGui:IsDescendantOf(game) then
+
+        blurEffect:Destroy()
+
+    end
+
+end)
+
+
+
+local sidebar = Instance.new("Frame")
+
+sidebar.Size = UDim2.new(0, 200, 1, -60)
+
+sidebar.Position = UDim2.new(0, 30, 0, 30)
+
+sidebar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+
+sidebar.BackgroundTransparency = 0.15
+
+sidebar.BorderSizePixel = 0
+
+sidebar.Parent = screenGui
+
+local sidebarCorner = Instance.new("UICorner")
+
+sidebarCorner.CornerRadius = UDim.new(0, 22)
+
+sidebarCorner.Parent = sidebar
+
+
+
+local trafficLights = Instance.new("Frame")
+
+trafficLights.Size = UDim2.new(1, 0, 0, 40)
+
+trafficLights.BackgroundTransparency = 1
+
+trafficLights.Parent = sidebar
+
+local function createDot(color, x)
+
+    local dot = Instance.new("Frame")
+
+    dot.Size = UDim2.new(0, 12, 0, 12)
+
+    dot.Position = UDim2.new(0, x, 0.5, -6)
+
+    dot.BackgroundColor3 = color
+
+    dot.BorderSizePixel = 0
+
+    dot.Parent = trafficLights
+
+    Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+
+end
+
+createDot(Color3.fromRGB(255, 95, 87), 20)  
+
+createDot(Color3.fromRGB(255, 189, 46), 42) 
+
+createDot(Color3.fromRGB(39, 201, 63), 64)  
+
+
+
+local buttons = {}
+
+local function createNavButton(text, yPos)
+
+	local btn = Instance.new("TextButton")
+
+	btn.Size = UDim2.new(1, -24, 0, 40)
+
+	btn.Position = UDim2.new(0, 12, 0, yPos)
+
+	btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+
+	btn.BackgroundTransparency = 1
+
+	btn.Text = "  " .. text
+
+	btn.Font = Enum.Font.GothamMedium
+
+	btn.TextColor3 = Color3.fromRGB(40, 40, 40)
+
+	btn.TextSize = 15
+
+	btn.TextXAlignment = Enum.TextXAlignment.Left
+
+	btn.Parent = sidebar
+
+	
+
+	local corner = Instance.new("UICorner", btn)
+
+	corner.CornerRadius = UDim.new(0, 10)
+
+	
+
+	table.insert(buttons, btn)
+
+	return btn
+
+end
+
+local homeBtn = createNavButton("Home", 70)
+
+local settingsBtn = createNavButton("Settings", 115)
+
+local aboutBtn = createNavButton("About", 160)
+
+local authorLabel = Instance.new("TextLabel")
+
+authorLabel.Size = UDim2.new(1, 0, 0, 20)
+
+authorLabel.Position = UDim2.new(0, 0, 1, -35)
+
+authorLabel.BackgroundTransparency = 1
+
+authorLabel.Font = Enum.Font.Code
+
+authorLabel.Text = "DESIGN BY KUDIS"
+
+authorLabel.TextColor3 = Color3.fromRGB(120, 120, 120)
+
+authorLabel.TextSize = 10
+
+authorLabel.Parent = sidebar
+
+
+
+local contentCard = Instance.new("Frame")
+
+contentCard.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+
+contentCard.BackgroundTransparency = 0.1
+
+contentCard.BorderSizePixel = 0
+
+contentCard.Parent = screenGui
+
+
+
+local cardStroke = Instance.new("UIStroke", contentCard)
+
+cardStroke.Color = Color3.fromRGB(255, 255, 255)
+
+cardStroke.Transparency = 0.6
+
+cardStroke.Thickness = 1.2
+
+local cardCorner = Instance.new("UICorner", contentCard)
+
+cardCorner.CornerRadius = UDim.new(0, 24)
+
+
+
+local currentContent = nil
+
+local cardSizes = {
+
+	home    = {w = 580, h = 460},
+
+	settings = {w = 500, h = 400},
+
+	about   = {w = 420, h = 300}
+
+}
+
+local function switchTo(section)
+
+	if currentContent then currentContent:Destroy() end
+
+	
+
+	local size = cardSizes[section]
+
+	local targetPos = UDim2.new(0.5, -size.w/2 + 110, 0.5, -size.h/2)
+
+	
+
+	TweenService:Create(contentCard, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+
+		Size = UDim2.new(0, size.w, 0, size.h),
+
+		Position = targetPos
+
+	}):Play()
+
+	local contentFrame = Instance.new("Frame")
+
+	contentFrame.Size = UDim2.new(1, 0, 1, 0)
+
+	contentFrame.BackgroundTransparency = 1
+
+	contentFrame.Parent = contentCard
+
+    contentFrame.ClipsDescendants = true
+
+	currentContent = contentFrame
+
+	if section == "home" then buildHome(contentFrame)
+
+	elseif section == "settings" then buildSettings(contentFrame)
+
+	elseif section == "about" then buildAbout(contentFrame) end
+
+end
+
+
+
+
+
+function createSwitch(parent, yPos, labelText)
+
+    local container = Instance.new("Frame", parent)
+
+    container.Size = UDim2.new(1, -40, 0, 40)
+
+    container.Position = UDim2.new(0, 20, 0, yPos)
+
+    container.BackgroundTransparency = 1
+
+    local label = Instance.new("TextLabel", container)
+
+    label.Size = UDim2.new(0.7, 0, 1, 0)
+
+    label.Text = labelText
+
+    label.Font = Enum.Font.Gotham
+
+    label.TextColor3 = Color3.fromRGB(30, 30, 30)
+
+    label.TextSize = 16
+
+    label.TextXAlignment = Enum.TextXAlignment.Left
+
+    label.BackgroundTransparency = 1
+
+	local switch = Instance.new("Frame", container)
+
+	switch.Size = UDim2.new(0, 50, 0, 28)
+
+	switch.Position = UDim2.new(1, -50, 0.5, -14)
+
+	switch.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+
+	switch.BorderSizePixel = 0
+
+	Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
+
+	local knob = Instance.new("Frame", switch)
+
+	knob.Size = UDim2.new(0, 24, 0, 24)
+
+	knob.Position = UDim2.new(0, 2, 0.5, -12)
+
+	knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+
+	Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+
+	local toggled = false
+
+	switch.InputBegan:Connect(function(io)
+
+		if io.UserInputType == Enum.UserInputType.MouseButton1 then
+
+			toggled = not toggled
+
+			local targetX = toggled and 1 or 0
+
+			TweenService:Create(knob, TweenInfo.new(0.25), {Position = UDim2.new(targetX, toggled and -26 or 2, 0.5, -12)}):Play()
+
+			TweenService:Create(switch, TweenInfo.new(0.25), {BackgroundColor3 = toggled and Color3.fromRGB(48, 209, 88) or Color3.fromRGB(200, 200, 200)}):Play()
+
+		end
+
+	end)
+
+end
+
+
+
+function buildHome(p)
+
+    local welcome = Instance.new("TextLabel", p)
+
+    welcome.Size = UDim2.new(1, -40, 0, 50)
+
+    welcome.Position = UDim2.new(0, 25, 0, 30)
+
+    welcome.Text = "Overview"
+
+    welcome.Font = Enum.Font.GothamBold
+
+    welcome.TextSize = 32
+
+    welcome.TextColor3 = Color3.fromRGB(0,0,0)
+
+    welcome.TextXAlignment = "Left"
+
+    welcome.BackgroundTransparency = 1
+
+    createSwitch(p, 100, "Enable Module X")
+
+    createSwitch(p, 150, "Bypass Anti-Cheat")
+
+end
+
+function buildSettings(p)
+
+    
+
+    local title = Instance.new("TextLabel", p)
+
+    title.Size = UDim2.new(1, -40, 0, 50)
+
+    title.Position = UDim2.new(0, 25, 0, 30)
+
+    title.Text = "Settings"
+
+    title.Font = Enum.Font.GothamBold
+
+    title.TextSize = 28
+
+    title.BackgroundTransparency = 1
+
+end
+
+
+
+local function highlightButton(activeBtn)
+
+	for _, btn in ipairs(buttons) do
+
+		local isActive = (btn == activeBtn)
+
+		TweenService:Create(btn, TweenInfo.new(0.3), {
+
+			BackgroundTransparency = isActive and 0 or 1,
+
+			BackgroundColor3 = Color3.fromRGB(0, 122, 255),
+
+			TextColor3 = isActive and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
+
+		}):Play()
+
+	end
+
+end
+
+homeBtn.MouseButton1Click:Connect(function() highlightButton(homeBtn) switchTo("home") end)
+
+settingsBtn.MouseButton1Click:Connect(function() highlightButton(settingsBtn) switchTo("settings") end)
+
+aboutBtn.MouseButton1Click:Connect(function() highlightButton(aboutBtn) switchTo("about") end)
+
+
+
+highlightButton(homeBtn)
+
+switchTo("home")
